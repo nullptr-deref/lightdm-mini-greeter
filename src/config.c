@@ -13,8 +13,12 @@ static gchar *parse_greeter_string(GKeyFile *keyfile, const char *group_name,
                                    const char *key_name, const gchar *fallback);
 static gint parse_greeter_integer(GKeyFile *keyfile, const char *group_name,
                                   const char *key_name, const gint fallback);
+static gfloat parse_greeter_float(GKeyFile *keyfile, const char *group_name,
+                                   const char *key_name, const gfloat fallback);
 static gboolean parse_greeter_boolean(GKeyFile *keyfile, const char *group_name,
                                       const char *key_name, const gboolean fallback);
+static gfloat parse_greeter_screen_space_v(GKeyFile *keyfile);
+static gfloat parse_greeter_screen_space_h(GKeyFile *keyfile);
 static GdkRGBA *parse_greeter_color_key(GKeyFile *keyfile, const char *key_name, const char *default_str);
 static guint parse_greeter_hotkey_keyval(GKeyFile *keyfile, const char *key_name, const char default_char);
 static gunichar *parse_greeter_password_char(GKeyFile *keyfile);
@@ -124,7 +128,7 @@ Config *initialize_config(void)
     config->border_width = parse_greeter_string(
         keyfile, "greeter-theme", "border-width", "2px");
     config->screen_space_v = parse_greeter_screen_space_v(keyfile);
-    config->screen_space_h = parse_greeter_screen_space_v(keyfile);
+    config->screen_space_h = parse_greeter_screen_space_h(keyfile);
     // Password
     config->password_char =
         parse_greeter_password_char(keyfile);
@@ -394,18 +398,18 @@ static gunichar *parse_greeter_password_char(GKeyFile *keyfile)
 }
 
 static gfloat parse_greeter_float(GKeyFile *keyfile, const char *group_name,
-                                   const char *key_name, const gfloat *fallback)
+                                   const char *key_name, const gfloat fallback)
 {
     GError *parse_err = NULL;
     const double parsed_val = g_key_file_get_double(keyfile, group_name,
-        key_name, err);
-    if (*err != NULL) {
-        g_warning("Could not find value for %s.%s - falling back to %d",
+        key_name, &parse_err);
+    if (parse_err != NULL) {
+        g_warning("Could not find value for %s.%s - falling back to %f",
                   group_name, key_name, fallback);
         return fallback;
     }
     else {
-        return parsed_val;
+        return (float)parsed_val;
     }
 }
 
