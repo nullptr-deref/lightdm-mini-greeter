@@ -120,6 +120,8 @@ Config *initialize_config(void)
         parse_greeter_color_key(keyfile, "border-color", "#080800");
     config->border_width = parse_greeter_string(
         keyfile, "greeter-theme", "border-width", "2px");
+    config->screen_space_v = parse_greeter_screen_space_v(keyfile);
+    config->screen_space_h = parse_greeter_screen_space_v(keyfile);
     // Password
     config->password_char =
         parse_greeter_password_char(keyfile);
@@ -386,6 +388,42 @@ static gunichar *parse_greeter_password_char(GKeyFile *keyfile)
     *result = unicode_str[0];
     g_free(unicode_str);
     return result;
+}
+
+static gfloat parse_greeter_float(GKeyFile *keyfile, const char *group_name,
+                                   const char *key_name, const gfloat *fallback)
+{
+    GError *parse_err = NULL;
+    const double parsed_val = g_key_file_get_double(keyfile, group_name,
+        key_name, err);
+    if (*err != NULL) {
+        g_warning("Could not find value for %s.%s - falling back to %d",
+                  group_name, key_name, fallback);
+        return fallback;
+    }
+    else {
+        return parsed_val;
+    }
+}
+
+/* Parse vertical screen space of the main window.
+*/
+static gfloat parse_greeter_screen_space_v(GKeyFile *keyfile)
+{
+    return parse_greeter_float(keyfile,
+                               "greeter-theme",
+                               "screen-space-vertical",
+                               DEFAULT_SCREEN_SPACE_V);
+}
+
+/* Parse horizontal screen space of the main window.
+*/
+static gfloat parse_greeter_screen_space_h(GKeyFile *keyfile)
+{
+    return parse_greeter_float(keyfile,
+                               "greeter-theme",
+                               "screen-space-horizontal",
+                               DEFAULT_SCREEN_SPACE_H);
 }
 
 /* Parse the password input alignment, properly handling RTL layouts.

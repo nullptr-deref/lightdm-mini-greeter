@@ -170,6 +170,11 @@ static void setup_main_window(Config *config, UI *ui)
     gtk_container_set_border_width(GTK_CONTAINER(main_window), config->layout_spacing);
     gtk_widget_set_name(GTK_WIDGET(main_window), "main");
 
+    // Set the Geometry of the Window
+    const gint initial_width = config->screen_space_h * primary_monitor_geometry.width;
+    const gint initial_height = config->screen_space_v * primary_monitor_geometry.height;
+    gtk_window_resize(GTK_WINDOW(main_window), initial_width, initial_height);
+
     g_signal_connect(main_window, "show", G_CALLBACK(place_main_window), NULL);
     g_signal_connect(main_window, "realize", G_CALLBACK(hide_mouse_cursor), NULL);
     g_signal_connect(main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
