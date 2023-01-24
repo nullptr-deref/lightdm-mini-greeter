@@ -22,6 +22,9 @@ static gfloat parse_greeter_password_alignment(GKeyFile *keyfile);
 static gboolean is_rtl_keymap_layout(void);
 gboolean input_string_equals(gchar *input_str, const gchar * const fixed_str);
 
+const float DEFAULT_SCREEN_SPACE_V = 0.2f;
+const float DEFAULT_SCREEN_SPACE_H = 0.3f;
+
 /* Initialize the configuration, sourcing the greeter's configuration file */
 Config *initialize_config(void)
 {

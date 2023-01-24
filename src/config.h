@@ -8,9 +8,6 @@
 #define CONFIG_FILE "/etc/lightdm/lightdm-mini-greeter.conf"
 #endif
 
-const float DEFAULT_SCREEN_SPACE_V = 0.2f;
-const float DEFAULT_SCREEN_SPACE_H = 0.3f;
-
 // Represents the System's Greeter Configuration. Parsed from `CONFIG_FILE`.
 typedef struct Config_ {
     gchar    *login_user;
