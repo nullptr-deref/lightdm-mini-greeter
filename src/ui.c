@@ -1,5 +1,6 @@
 /* Functions related to the GUI. */
 #define _GNU_SOURCE
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -26,6 +27,7 @@ static void create_and_attach_sys_info_label(Config *config, UI *ui);
 static void create_and_attach_password_field(Config *config, UI *ui);
 static void create_and_attach_feedback_label(UI *ui);
 static void attach_config_colors_to_screen(Config *config);
+static void adjust_main_window_screen_space(Config *config, UI *ui);
 
 
 /* Initialize the Main Window & it's Children */
@@ -36,6 +38,7 @@ UI *initialize_ui(Config *config)
     setup_background_windows(config, ui);
     move_mouse_to_background_window();
     setup_main_window(config, ui);
+    adjust_main_window_screen_space(config, ui);
     create_and_attach_layout_container(ui);
     create_and_attach_sys_info_label(config, ui);
     create_and_attach_password_field(config, ui);
@@ -170,16 +173,6 @@ static void setup_main_window(Config *config, UI *ui)
     gtk_container_set_border_width(GTK_CONTAINER(main_window), config->layout_spacing);
     gtk_widget_set_name(GTK_WIDGET(main_window), "main");
 
-    GdkDisplay *display = gdk_display_get_default();
-    GdkMonitor *primary_monitor = gdk_display_get_primary_monitor(display);
-    GdkRectangle primary_monitor_geometry;
-    gdk_monitor_get_geometry(primary_monitor, &primary_monitor_geometry);
-
-    // Set the Geometry of the Window
-    const gint initial_width = (gint)(config->screen_space_h * primary_monitor_geometry.width);
-    const gint initial_height = (gint)(config->screen_space_v * primary_monitor_geometry.height);
-    gtk_window_resize(GTK_WINDOW(main_window), initial_width, initial_height);
-
     g_signal_connect(main_window, "show", G_CALLBACK(place_main_window), NULL);
     g_signal_connect(main_window, "realize", G_CALLBACK(hide_mouse_cursor), NULL);
     g_signal_connect(main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -210,6 +203,34 @@ static void place_main_window(GtkWidget *main_window, gpointer user_data)
         GTK_WINDOW(main_window),
         primary_monitor_geometry.x + primary_monitor_geometry.width / 2 - window_width / 2,
         primary_monitor_geometry.y + primary_monitor_geometry.height / 2 - window_height / 2);
+}
+
+
+/* Set main window size to cover specified screen space */
+static void adjust_main_window_screen_space(Config *config, UI *ui)
+{
+    GdkDisplay *display = gdk_display_get_default();
+    GdkMonitor *primary_monitor = gdk_display_get_primary_monitor(display);
+    GdkRectangle primary_monitor_geometry;
+    gdk_monitor_get_geometry(primary_monitor, &primary_monitor_geometry);
+
+    const float EPS = 10e-6;
+    gint initial_width, initial_height;
+    gtk_widget_get_preferred_width(GTK_WIDGET(ui->main_window), &initial_width, NULL);
+    gtk_widget_get_preferred_height(GTK_WIDGET(ui->main_window), &initial_height, NULL);
+    const gfloat initial_screen_space_h = (gfloat)initial_width / primary_monitor_geometry.width;
+    const gfloat initial_screen_space_v = (gfloat)initial_height / primary_monitor_geometry.height;
+    gint width = initial_width,
+         height = initial_height;
+    if (fabs(config->screen_space_h - initial_screen_space_h) > EPS
+            && config->screen_space_h > initial_screen_space_h) {
+        width = (gint)(config->screen_space_h * primary_monitor_geometry.width);
+    }
+    if (fabs(config->screen_space_v - initial_screen_space_v) > EPS
+            && config->screen_space_v > initial_screen_space_v) {
+        height = (gint)(config->screen_space_v * primary_monitor_geometry.height);
+    }
+    gtk_window_set_default_size(GTK_WINDOW(ui->main_window), width, height);
 }
 
 
