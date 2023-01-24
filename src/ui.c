@@ -170,7 +170,6 @@ static void setup_main_window(Config *config, UI *ui)
     gtk_container_set_border_width(GTK_CONTAINER(main_window), config->layout_spacing);
     gtk_widget_set_name(GTK_WIDGET(main_window), "main");
 
-    // Get the Geometry of the Primary Monitor
     GdkDisplay *display = gdk_display_get_default();
     GdkMonitor *primary_monitor = gdk_display_get_primary_monitor(display);
     GdkRectangle primary_monitor_geometry;
