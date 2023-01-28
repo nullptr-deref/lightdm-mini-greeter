@@ -2,6 +2,7 @@
 
 ## master
 
+* Add ability to adjust password input window screen space occupation.
 * Add a `show-sys-info` configuration option to show the username, hostname, &
   current time above the password label/input. Additional configuration options
   let you customize the font, size, color, & spacing. The output format is
