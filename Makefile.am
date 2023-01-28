@@ -49,7 +49,8 @@ lightdm_mini_greeter_SOURCES = \
 							src/config.c \
 							src/focus_ring.c \
 							src/ui.c \
-							src/utils.c
+							src/utils.c \
+							src/battery.c
 
 lightdm_mini_greeter_CFLAGS = \
 							$(AM_CFLAGS) \
