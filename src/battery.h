@@ -9,11 +9,11 @@ enum {
 typedef struct BatteryInfo_ {
     char *status;
     float percentage;
-} Battery;
+} BatteryInfo;
+
 
 void initialize_battery_info(BatteryInfo *bat_info);
 void destroy_battery_info(BatteryInfo *bat_info);
-int get_battery_info(BatteryState *bat_info);
-int battery_present();
+int get_battery_info(BatteryInfo *bat_info);
 
 #endif

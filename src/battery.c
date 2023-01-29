@@ -1,7 +1,10 @@
-#include "system.h"
+#include "battery.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include <glib.h>
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -21,6 +24,8 @@
 
 const unsigned int MAX_BAT_STATUS_LEN = 12; // Maximum string len + '\0'
 
+static int battery_present(void);
+
 void initialize_battery_info(BatteryInfo *bat_info) {
     bat_info = malloc(sizeof(BatteryInfo));
     bat_info->status = NULL;
@@ -36,7 +41,7 @@ void destroy_battery_info(BatteryInfo *bat_info) {
 /* Retrieves current battery state if present.
  * Returns 0 on success or -1 if battery is missing.
  */
-int get_battery_info(BatteryState *bat_info) {
+int get_battery_info(BatteryInfo *bat_info) {
     if (battery_present() != BAT_PRESENT)
         return -1;
 
@@ -46,14 +51,14 @@ int get_battery_info(BatteryState *bat_info) {
     FILE *charge_full_file = fopen(BAT_CHARGE_FULL_FILE, "r");
     fscanf(charge_full_file, "%d", &full_charge);
     FILE *status_file = fopen(BAT_STATUS, "r");
-    char curr_status[MAX_BAT_STATUS_LEN];
-    fscanf(status_file, "%s", &curr_status);
+    gchar curr_status[MAX_BAT_STATUS_LEN];
+    fscanf(status_file, "%s", curr_status);
     fclose(charge_now_file);
     fclose(charge_full_file);
     fclose(status_file);
 
     bat_info->percentage = (float)(curr_charge / full_charge);
-    bat_info->status = strdup(curr_status);
+    bat_info->status = g_strdup(curr_status);
 
     return 0;
 }
