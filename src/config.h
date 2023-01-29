@@ -20,6 +20,8 @@ typedef struct Config_ {
     gint      password_input_width;
     gboolean  show_image_on_all_monitors;
     gboolean  show_sys_info;
+    gboolean  show_battery_info;
+    gchar    *battery_info_position;
 
     /* Theme Configuration */
     gchar    *font;
