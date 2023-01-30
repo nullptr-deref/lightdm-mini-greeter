@@ -32,5 +32,7 @@ void destroy_app(App *app);
 #define APP_PASSWORD_INPUT(app)         (app)->ui->password_input
 #define APP_FEEDBACK_LABEL(app)         (app)->ui->feedback_label
 #define APP_TIME_LABEL(app)             (app)->ui->time_label
+#define APP_BATTERY_WINDOW(app)         (app)->ui->battery_window
+#define APP_CONFIG(app)                 (app)->config
 
 #endif

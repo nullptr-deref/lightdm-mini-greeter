@@ -26,7 +26,27 @@ static void create_and_attach_sys_info_label(Config *config, UI *ui);
 static void create_and_attach_password_field(Config *config, UI *ui);
 static void create_and_attach_feedback_label(UI *ui);
 static void attach_config_colors_to_screen(Config *config);
+static void setup_battery_info_window(Config *config, UI *ui);
+static void place_battery_info_window(GtkWidget *bat_wnd, gpointer user_data);
 
+
+const int BAT_POSITIONS_COUNT = 6;
+const char *battery_window_positions[] = {
+    "topleft",
+    "top",
+    "topright",
+    "bottomleft",
+    "bottom",
+    "bottomright"
+};
+enum BatteryInfoWindowPositions {
+    Topleft = 0,
+    Top = 1,
+    Topright = 2,
+    Bottomleft = 3,
+    Bottom = 4,
+    Bottomright = 5
+};
 
 /* Initialize the Main Window & it's Children */
 UI *initialize_ui(Config *config)
@@ -41,6 +61,9 @@ UI *initialize_ui(Config *config)
     create_and_attach_password_field(config, ui);
     create_and_attach_feedback_label(ui);
     attach_config_colors_to_screen(config);
+    if (strcmp(config->battery_info_position, "main-window") != 0) {
+        setup_battery_info_window(config, ui);
+    }
 
     return ui;
 }
@@ -288,6 +311,75 @@ static void create_and_attach_password_field(Config *config, UI *ui)
         gtk_label_set_justify(GTK_LABEL(ui->password_label), GTK_JUSTIFY_RIGHT);
         gtk_grid_attach_next_to(ui->layout_container, ui->password_label,
                                 ui->password_input, GTK_POS_LEFT, 1, 1);
+    }
+}
+
+void setup_battery_info_window(Config *config, UI *ui) {
+    GtkWindow *battery_info_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+
+    gtk_widget_set_name(GTK_WIDGET(battery_info_window), "battery");
+
+    g_signal_connect(battery_info_window, "show", G_CALLBACK(place_battery_info_window), config);
+    g_signal_connect(battery_info_window, "realize", G_CALLBACK(hide_mouse_cursor), NULL);
+    g_signal_connect(battery_info_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    ui->battery_info_window = battery_info_window;
+}
+
+
+void place_battery_info_window(GtkWidget *bat_wnd, gpointer user_data) {
+    GdkDisplay *display = gdk_display_get_default();
+    GdkMonitor *primary_monitor = gdk_display_get_primary_monitor(display);
+    GdkRectangle primary_monitor_geometry;
+    gdk_monitor_get_geometry(primary_monitor, &primary_monitor_geometry);
+
+    gint window_width, window_height;
+    gtk_window_get_size(GTK_WINDOW(bat_wnd), &window_width, &window_height);
+
+    int position_selector = Topright;
+    for (int i = 0; i < BAT_POSITIONS_COUNT; i++) {
+        if (strcmp(battery_window_positions[i], ((Config*)user_data)->battery_info_position) == 0) {
+            position_selector = i;
+            break;
+        }
+    }
+    const int bat_window_margin = 5; // margin in pixels from screen border
+    switch (position_selector) {
+        case Topleft:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + window_width / 2 + bat_window_margin,
+                primary_monitor_geometry.y + window_height / 2 + bat_window_margin);
+            break;
+        case Top:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 + window_width / 2 + bat_window_margin,
+                primary_monitor_geometry.y + window_height / 2 + bat_window_margin);
+            break;
+        case Topright:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width / 2 - bat_window_margin,
+                primary_monitor_geometry.y + window_height / 2 + bat_window_margin);
+            break;
+        case Bottomleft:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + window_width / 2 + bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height / 2 - bat_window_margin);
+            break;
+        case Bottom:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 + window_width / 2 + bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height / 2 - bat_window_margin);
+            break;
+        case Bottomright:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width / 2 - bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height / 2 - bat_window_margin);
     }
 }
 
