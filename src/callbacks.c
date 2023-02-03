@@ -142,6 +142,30 @@ gboolean handle_time_update(App *app)
     return TRUE;
 }
 
+/** Retrieve the current battery percentage (if on laptop)
+ * and update GtkLabel.
+ */
+gboolean handle_battery_percentage_update(App *app) {
+    get_battery_info(app->battery_info);
+    gchar percentage_string[8]; // xxx.xx% + \0
+    sprintf(percentage_string, "%.2f%%", app->battery_info->percentage);
+    gtk_label_set_text(GTK_LABEL(APP_BATTERY_PERCENTAGE_LABEL(app)), percentage_string);
+
+    return TRUE;
+}
+
+/** Retrieve the current battery status (if on laptop,
+ * full, charging or discharging) and update GtkLabel.
+ */
+gboolean handle_battery_status_update(App *app) {
+    get_battery_info(app->battery_info);
+    gchar status_string[12];
+    sprintf(status_string, "%s", app->battery_info->status);
+    gtk_label_set_text(GTK_LABEL(APP_BATTERY_STATUS_LABEL(app)), status_string);
+
+    return TRUE;
+}
+
 /* Set the Feedback Label's text & ensure it is visible. */
 static void set_ui_feedback_label(App *app, gchar *feedback_text)
 {
