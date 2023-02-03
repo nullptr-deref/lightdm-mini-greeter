@@ -26,11 +26,17 @@ const unsigned int MAX_BAT_STATUS_LEN = 12; // Maximum string len + '\0'
 
 static int battery_present(void);
 
-void initialize_battery_info(BatteryInfo *bat_info) {
-    bat_info = malloc(sizeof(BatteryInfo));
+/** Initialize battery info struct. */
+BatteryInfo *initialize_battery_info() {
+    BatteryInfo *bat_info = malloc(sizeof(BatteryInfo));
     bat_info->status = NULL;
+
+    return bat_info;
 }
 
+/** Clear and destroy battery data. Pair of
+ * initialize_battery_info(BatteryInfo *).
+ */
 void destroy_battery_info(BatteryInfo *bat_info) {
     if (bat_info->status != NULL)
         free(bat_info->status);
