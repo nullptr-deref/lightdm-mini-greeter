@@ -21,11 +21,11 @@ int main(int argc, char **argv)
         gtk_widget_show_all(GTK_WIDGET(APP_BACKGROUND_WINDOWS(app)[m]));
     }
     gtk_widget_show_all(GTK_WIDGET(APP_MAIN_WINDOW(app)));
-    gtk_window_present(APP_MAIN_WINDOW(app));
     if (strcmp(APP_CONFIG(app)->battery_info_position, "main-window") != 0) {
         gtk_widget_show_all(GTK_WIDGET(APP_BATTERY_INFO_WINDOW(app)));
         gtk_window_present(APP_BATTERY_INFO_WINDOW(app));
     }
+    gtk_window_present(APP_MAIN_WINDOW(app));
     gtk_main();
 
     destroy_app(app);
