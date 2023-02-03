@@ -17,6 +17,9 @@ typedef struct UI_ {
     GtkWidget   *password_label;
     GtkWidget   *password_input;
     GtkWidget   *feedback_label;
+    GtkGrid     *battery_info_container;
+    GtkWidget   *bat_percentage_label;
+    GtkWidget   *bat_status_label;
 } UI;
 
 
