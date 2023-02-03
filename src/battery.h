@@ -12,7 +12,7 @@ typedef struct BatteryInfo_ {
 } BatteryInfo;
 
 
-BatteryInfo *initialize_battery_info();
+BatteryInfo *initialize_battery_info(void);
 void destroy_battery_info(BatteryInfo *bat_info);
 int get_battery_info(BatteryInfo *bat_info);
 

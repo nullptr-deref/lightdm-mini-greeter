@@ -63,7 +63,7 @@ int get_battery_info(BatteryInfo *bat_info) {
     fclose(charge_full_file);
     fclose(status_file);
 
-    bat_info->percentage = (float)(curr_charge / full_charge);
+    bat_info->percentage = (float)curr_charge / full_charge * 100;
     bat_info->status = g_strdup(curr_status);
 
     return 0;

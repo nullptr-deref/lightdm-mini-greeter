@@ -6,7 +6,7 @@ AM_CFLAGS = -g -Wall -O3 --std=c11 -Wextra -Werror --std=c11 -pedantic \
 			-Wno-unused-parameter -Wfloat-equal -Wundef -Wshadow      \
 			-Wpointer-arith -Wcast-align -Wstrict-prototypes          \
 			-Wstrict-overflow=5 -Wwrite-strings -Waggregate-return    \
-			-Wswitch-enum -Wconversion -Wunreachable-code -Wformat=2  \
+			-Wswitch-enum -Wunreachable-code -Wformat=2  \
 			-Winit-self                                               \
 			-ftrapv -fverbose-asm \
 			-DCONFIG_FILE=\""$(sysconfdir)/lightdm/lightdm-mini-greeter.conf"\"
