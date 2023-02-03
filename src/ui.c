@@ -349,43 +349,43 @@ void place_battery_info_window(GtkWidget *bat_wnd, gpointer user_data) {
             break;
         }
     }
-    const int bat_window_margin = 5; // margin in pixels from screen border
+    const int bat_window_margin = 10; // margin in pixels from screen border
     switch (position_selector) {
         case Topleft:
             gtk_window_move(
                 GTK_WINDOW(bat_wnd),
-                primary_monitor_geometry.x + window_width / 2 + bat_window_margin,
-                primary_monitor_geometry.y + window_height / 2 + bat_window_margin);
+                primary_monitor_geometry.x + bat_window_margin,
+                primary_monitor_geometry.y + bat_window_margin);
             break;
         case Top:
             gtk_window_move(
                 GTK_WINDOW(bat_wnd),
-                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 + window_width / 2 + bat_window_margin,
-                primary_monitor_geometry.y + window_height / 2 + bat_window_margin);
+                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 - window_width / 2,
+                primary_monitor_geometry.y + bat_window_margin);
             break;
         case Topright:
             gtk_window_move(
                 GTK_WINDOW(bat_wnd),
-                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width / 2 - bat_window_margin,
-                primary_monitor_geometry.y + window_height / 2 + bat_window_margin);
+                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width - bat_window_margin,
+                primary_monitor_geometry.y + bat_window_margin);
             break;
         case Bottomleft:
             gtk_window_move(
                 GTK_WINDOW(bat_wnd),
-                primary_monitor_geometry.x + window_width / 2 + bat_window_margin,
-                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height / 2 - bat_window_margin);
+                primary_monitor_geometry.x + bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height - bat_window_margin);
             break;
         case Bottom:
             gtk_window_move(
                 GTK_WINDOW(bat_wnd),
-                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 + window_width / 2 + bat_window_margin,
-                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height / 2 - bat_window_margin);
+                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 + window_width / 2,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height - bat_window_margin);
             break;
         case Bottomright:
             gtk_window_move(
                 GTK_WINDOW(bat_wnd),
-                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width / 2 - bat_window_margin,
-                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height / 2 - bat_window_margin);
+                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width - bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height - bat_window_margin);
     }
 }
 
