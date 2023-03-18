@@ -75,7 +75,7 @@ Config *initialize_config(void)
     config->show_battery_info = parse_greeter_boolean(
         keyfile, "greeter", "show-battery-info", FALSE);
     config->battery_info_position = parse_greeter_string(
-        keyfile, "greeter", "battery-info-position", "main-window");
+        keyfile, "greeter", "battery-info-position", "topright");
 
     // Parse Hotkey Settings
     config->suspend_key = parse_greeter_hotkey_keyval(keyfile, "suspend-key", 'u');
