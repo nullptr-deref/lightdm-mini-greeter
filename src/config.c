@@ -72,6 +72,10 @@ Config *initialize_config(void)
         keyfile, "greeter", "show-image-on-all-monitors", FALSE);
     config->show_sys_info = parse_greeter_boolean(
         keyfile, "greeter", "show-sys-info", FALSE);
+    config->show_battery_info = parse_greeter_boolean(
+        keyfile, "greeter", "show-battery-info", FALSE);
+    config->battery_info_position = parse_greeter_string(
+        keyfile, "greeter", "battery-info-position", "main-window");
 
     // Parse Hotkey Settings
     config->suspend_key = parse_greeter_hotkey_keyval(keyfile, "suspend-key", 'u');

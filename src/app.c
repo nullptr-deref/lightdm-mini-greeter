@@ -22,6 +22,7 @@ App *initialize_app(int argc, char **argv)
     }
 
     app->config = initialize_config();
+    app->battery_info = initialize_battery_info();
     app->greeter = lightdm_greeter_new();
     app->ui = initialize_ui(app->config);
 
@@ -46,6 +47,14 @@ App *initialize_app(int argc, char **argv)
         handle_time_update(app);
         g_timeout_add_seconds(15, G_SOURCE_FUNC(handle_time_update), app);
     }
+    // Update initial info about battery and then
+    // update it every 5 seconds
+    if (app->config->show_battery_info) {
+        handle_battery_percentage_update(app);
+        handle_battery_status_update(app);
+        g_timeout_add_seconds(5, G_SOURCE_FUNC(handle_battery_percentage_update), app);
+        g_timeout_add_seconds(5, G_SOURCE_FUNC(handle_battery_status_update), app);
+    }
 
     return app;
 }
@@ -55,6 +64,7 @@ App *initialize_app(int argc, char **argv)
 void destroy_app(App *app)
 {
     destroy_config(app->config);
+    destroy_battery_info(app->battery_info);
     free(app->ui);
     free(app);
 }

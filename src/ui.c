@@ -26,9 +26,30 @@ static void create_and_attach_layout_container(UI *ui);
 static void create_and_attach_sys_info_label(Config *config, UI *ui);
 static void create_and_attach_password_field(Config *config, UI *ui);
 static void create_and_attach_feedback_label(UI *ui);
+static void create_and_attach_battery_info_label(Config *config, UI *ui);
 static void attach_config_colors_to_screen(Config *config);
 static void adjust_main_window_screen_space(Config *config, UI *ui);
+static void setup_battery_info_window(Config *config, UI *ui);
+static void place_battery_info_window(GtkWidget *bat_wnd, gpointer user_data);
 
+
+const int BAT_POSITIONS_COUNT = 6;
+const char *battery_window_positions[] = {
+    "topleft",
+    "top",
+    "topright",
+    "bottomleft",
+    "bottom",
+    "bottomright"
+};
+enum BatteryInfoWindowPositions {
+    Topleft = 0,
+    Top = 1,
+    Topright = 2,
+    Bottomleft = 3,
+    Bottom = 4,
+    Bottomright = 5
+};
 
 /* Initialize the Main Window & it's Children */
 UI *initialize_ui(Config *config)
@@ -44,6 +65,10 @@ UI *initialize_ui(Config *config)
     create_and_attach_password_field(config, ui);
     create_and_attach_feedback_label(ui);
     attach_config_colors_to_screen(config);
+    if (strcmp(config->battery_info_position, "main-window") != 0) {
+        setup_battery_info_window(config, ui);
+    }
+    create_and_attach_battery_info_label(config, ui);
 
     return ui;
 }
@@ -59,10 +84,14 @@ static UI *new_ui(void)
     ui->background_windows = NULL;
     ui->monitor_count = 0;
     ui->main_window = NULL;
+    ui->battery_info_window = NULL;
     ui->layout_container = NULL;
     ui->password_label = NULL;
     ui->password_input = NULL;
     ui->feedback_label = NULL;
+    ui->bat_percentage_label = NULL;
+    ui->bat_status_label = NULL;
+    ui->battery_info_container = NULL;
 
     return ui;
 }
@@ -322,6 +351,75 @@ static void create_and_attach_password_field(Config *config, UI *ui)
     }
 }
 
+void setup_battery_info_window(Config *config, UI *ui) {
+    GtkWindow *battery_info_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+
+    gtk_widget_set_name(GTK_WIDGET(battery_info_window), "battery");
+
+    g_signal_connect(battery_info_window, "show", G_CALLBACK(place_battery_info_window), config);
+    g_signal_connect(battery_info_window, "realize", G_CALLBACK(hide_mouse_cursor), NULL);
+    g_signal_connect(battery_info_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+    ui->battery_info_window = battery_info_window;
+}
+
+
+void place_battery_info_window(GtkWidget *bat_wnd, gpointer user_data) {
+    GdkDisplay *display = gdk_display_get_default();
+    GdkMonitor *primary_monitor = gdk_display_get_primary_monitor(display);
+    GdkRectangle primary_monitor_geometry;
+    gdk_monitor_get_geometry(primary_monitor, &primary_monitor_geometry);
+
+    gint window_width, window_height;
+    gtk_window_get_size(GTK_WINDOW(bat_wnd), &window_width, &window_height);
+
+    int position_selector = Topright;
+    for (int i = 0; i < BAT_POSITIONS_COUNT; i++) {
+        if (strcmp(battery_window_positions[i], ((Config*)user_data)->battery_info_position) == 0) {
+            position_selector = i;
+            break;
+        }
+    }
+    const int bat_window_margin = 10; // margin in pixels from screen border
+    switch (position_selector) {
+        case Topleft:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + bat_window_margin,
+                primary_monitor_geometry.y + bat_window_margin);
+            break;
+        case Top:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 - window_width / 2,
+                primary_monitor_geometry.y + bat_window_margin);
+            break;
+        case Topright:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width - bat_window_margin,
+                primary_monitor_geometry.y + bat_window_margin);
+            break;
+        case Bottomleft:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height - bat_window_margin);
+            break;
+        case Bottom:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width / 2 + window_width / 2,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height - bat_window_margin);
+            break;
+        case Bottomright:
+            gtk_window_move(
+                GTK_WINDOW(bat_wnd),
+                primary_monitor_geometry.x + primary_monitor_geometry.width - window_width - bat_window_margin,
+                primary_monitor_geometry.y + primary_monitor_geometry.height - window_height - bat_window_margin);
+    }
+}
+
 
 /* Add a label for feedback to the user */
 static void create_and_attach_feedback_label(UI *ui)
@@ -343,6 +441,36 @@ static void create_and_attach_feedback_label(UI *ui)
 
     gtk_grid_attach_next_to(ui->layout_container, ui->feedback_label,
                             attachment_point, GTK_POS_BOTTOM, width, 1);
+}
+
+static void create_and_attach_battery_info_label(Config *config, UI *ui)
+{
+    ui->battery_info_container = GTK_GRID(gtk_grid_new());
+    gtk_grid_set_column_spacing(ui->battery_info_container, 0);
+    gtk_grid_set_row_spacing(ui->battery_info_container, 5);
+    gtk_widget_set_name(GTK_WIDGET(ui->battery_info_container), "battery-info");
+
+    ui->bat_status_label = gtk_label_new("");
+    gtk_label_set_xalign(GTK_LABEL(ui->bat_status_label), 1.0f);
+    gtk_widget_set_hexpand(GTK_WIDGET(ui->bat_status_label), TRUE);
+    gtk_widget_set_name(GTK_WIDGET(ui->bat_status_label), "battery-status");
+
+    ui->bat_percentage_label = gtk_label_new("");
+    gtk_label_set_xalign(GTK_LABEL(ui->bat_percentage_label), 0.0f);
+    gtk_widget_set_hexpand(GTK_WIDGET(ui->bat_percentage_label), TRUE);
+    gtk_widget_set_name(GTK_WIDGET(ui->bat_percentage_label), "battery-percentage");
+
+    gtk_grid_attach(
+        ui->battery_info_container, GTK_WIDGET(ui->bat_status_label), 0, 0, 1, 1);
+    gtk_grid_attach(
+        ui->battery_info_container, GTK_WIDGET(ui->bat_percentage_label), 1, 0, 1, 1);
+    if (config->show_battery_info) {
+        gtk_container_add(GTK_CONTAINER(ui->battery_info_window),
+                          GTK_WIDGET(ui->battery_info_container));
+    }
+    else {
+        // TODO: handle placement in the main window
+    }
 }
 
 /* Attach a style provider to the screen, using color options from config */
@@ -385,7 +513,7 @@ static void attach_config_colors_to_screen(Config *config)
             "border-color: %s;\n"
             "border-style: solid;\n"
         "}\n"
-        "#main {\n"
+        "#main, #battery {\n"
             "background-color: %s;\n"
         "}\n"
         "#password {\n"
